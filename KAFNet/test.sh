@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=0
 python run_models.py \
-      --model KFNet \
+      --model KAFNet \
       --align variate \
       --dataset activity --state 'def' --history 3000 \
       --patience 50 --batch_size 32 --lr 0.001 \

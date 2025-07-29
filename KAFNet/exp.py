@@ -1,7 +1,6 @@
 import os
 import sys
 sys.path.append("..")
-from thop import profile
 import time
 import datetime
  
@@ -18,15 +17,15 @@ from lib.parse_datasets import parse_datasets
 from model.tPatchGNN import *
  
 from model.tPatchGNN import tPatchGNN
-from model.KFNet import KFNet
+from model.KAFNet import KAFNet
 
 
 
 def build_model(args):
     if args.model == 'tPatchGNN':
         model = tPatchGNN(args)
-    elif args.model == 'KFNet':    
-        model = KFNet(args)
+    elif args.model == 'KAFNet':    
+        model = KAFNet(args)
     else:
         raise ValueError(f"Unknown model name: {args.model}")
     return model
@@ -69,13 +68,6 @@ def train_main(args, optunaTrialReport=None):
     dummy_observed_tp = dummy_batch["observed_tp"]
     dummy_observed_mask = dummy_batch["observed_mask"]
 
-    flops, params_thop = profile(
-        model,
-        inputs=(dummy_tp_to_predict, dummy_observed_data, dummy_observed_tp, dummy_observed_mask),
-        verbose=False
-    )
-    param_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
-
      
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
@@ -84,7 +76,6 @@ def train_main(args, optunaTrialReport=None):
     best_val_mse = np.inf
     test_res = None   
     best_iter = 0
-    inference_times = []  
 
     global_train_start = time.time()
     total_iters = 0
@@ -130,10 +121,7 @@ def train_main(args, optunaTrialReport=None):
                 best_iter = epoch
                 
                  
-                inference_start = time.time()
                 test_res = evaluation(model, data_obj["test_dataloader"], data_obj["n_test_batches"])
-                inference_end = time.time()
-                inference_times.append(inference_end - inference_start)
                 
             vali_loss = val_res["loss"]
             test_loss = test_res["loss"] if test_res is not None else np.inf
@@ -152,22 +140,11 @@ def train_main(args, optunaTrialReport=None):
 
      
     global_training_time = time.time() - global_train_start
-    avg_iter_time = global_training_time / total_iters
-    avg_inference_time = np.mean(inference_times) if inference_times else 0.0
 
-    if args.dataset == 'physionet':
-        final_result_path = "seed_physionet.txt"
-    elif args.dataset == 'ushcn':
-        final_result_path = "seed_ushcn.txt"
-    elif args.dataset == 'mimic':
-        final_result_path = "seed_mimic.txt"
-    elif args.dataset == 'activity':
-        final_result_path = "seed_activity.txt"
-    else:
-        raise ValueError(f"Unknown dataset: {args.dataset}")
+ 
         
  
-    with open("efficiency.txt", "a", encoding="utf-8") as f:
+    with open("results.txt", "a", encoding="utf-8") as f:
         f.write(f"Model: {args.model}, Dataset: {args.dataset}, Best Epoch:{best_iter}, Seed: {args.seed}, lr: {args.lr}, batch_size: {args.batch_size}, nhead: {args.nhead}, tedim: {args.te_dim}, nlayer: {args.nlayer}, K: {args.K}, hid_dim: {args.hid_dim}, preconvdim:{args.preconvdim}\n")
         if test_res is not None:
             f.write("MSE: {:.5f}, MAE: {:.5f}, MAPE: {:.2f}%\n".format(
@@ -175,12 +152,6 @@ def train_main(args, optunaTrialReport=None):
             ))
         else:
             f.write("No test result available.\n")
-
-        f.write("Model FLOPs: {:.2f}, Parameter count (thop): {:.2f}, Manual param count: {}\n".format(
-            flops, params_thop, param_count
-        ))
-        f.write("Average training time per iteration: {:.4f}s\n".format(avg_iter_time))
-        f.write("Average inference time: {:.4f}s\n".format(avg_inference_time))
 
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         minutes = int(global_training_time // 60)

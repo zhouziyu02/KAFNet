@@ -1,8 +1,8 @@
-This is the official implementation of our AAAI 2026 submission titled **"KFNet: Efficient Pre-aligned Irregular Time Series Forecasting through Spatial Correlation and Temporal Compression"**
+This is the official implementation of the paper titled **"Revitalizing Canonical Pre‑Alignment for Irregular Multivariate Time Series Forecasting"**
 
 ## 🔧 Reproducing Experiments
 
-Under the path ./KFNet/KFNet, reviewers can reproduce experiment on Human Activity dataset by simply running:
+Under the path ./KAFNet/KAFNet, reviewers can reproduce experiment on Human Activity dataset by simply running:
 
 
 ```bash
@@ -14,8 +14,8 @@ bash ./test.sh
 The core model implementation can be found in the file:
 
 ```
-./model/KFNet.py
+./model/KAFNet.py
 ```
 
-This file contains the complete architecture of our proposed KFNet model.
+This file contains the complete architecture of our proposed KAFNet model.
  

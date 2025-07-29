@@ -103,7 +103,7 @@ class FreqBlock(nn.Module):
 
 
 
-class KFNet(nn.Module):
+class KAFNet(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.N   = args.ndim
