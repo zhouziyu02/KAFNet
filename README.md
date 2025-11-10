@@ -1,4 +1,4 @@
-This is the official implementation of the paper titled **"Revitalizing Canonical Pre‑Alignment for Irregular Multivariate Time Series Forecasting"**
+This is the official implementation of the AAAI'26 paper titled **"Revitalizing Canonical Pre‑Alignment for Irregular Multivariate Time Series Forecasting"**
 
 ## 🔧 Reproducing Experiments
 
